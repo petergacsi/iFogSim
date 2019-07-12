@@ -31,6 +31,22 @@ public class Sensor extends SimEntity{
 	private Application app;
 	private double latency;
 	
+	private int sumOfGeneratedData = 0;
+	private int numberOfTupleEmits = 0;
+	private int generatedDataPerEmits;
+	
+	public int getSumOfGeneratedData() {
+		return sumOfGeneratedData;
+	}
+	
+	public int getNumberOfTupleEmits() {
+		return numberOfTupleEmits;
+	}
+	
+	public int getGeneratedDataPerEmits() {
+		return generatedDataPerEmits;
+	}
+	
 	public Sensor(String name, int userId, String appId, int gatewayDeviceId, double latency, GeoLocation geoLocation, 
 			Distribution transmitDistribution, int cpuLength, int nwLength, String tupleType, String destModuleName) {
 		super(name);
@@ -100,6 +116,8 @@ public class Sensor extends SimEntity{
 		tuple.setActualTupleId(actualTupleId);
 		
 		send(gatewayDeviceId, getLatency(), FogEvents.TUPLE_ARRIVAL,tuple);
+		generatedDataPerEmits = (int) tuple.getCloudletFileSize();
+		sumOfGeneratedData += tuple.getCloudletFileSize();
 	}
 	
 	private int updateTimings(String src, String dest){
@@ -131,6 +149,7 @@ public class Sensor extends SimEntity{
 			//transmit(transmitDistribution.getNextValue());
 			break;
 		case FogEvents.EMIT_TUPLE:
+			numberOfTupleEmits++;
 			transmit();
 			send(getId(), getTransmitDistribution().getNextValue(), FogEvents.EMIT_TUPLE);
 			break;

@@ -103,6 +103,7 @@ public class Controller extends SimEntity{
 			printPowerDetails();
 			printCostDetails();
 			printNetworkUsageDetails();
+			printSensorDetails();
 			System.exit(0);
 			break;
 			
@@ -110,7 +111,18 @@ public class Controller extends SimEntity{
 	}
 	
 	private void printNetworkUsageDetails() {
-		System.out.println("Total network usage = "+NetworkUsageMonitor.getNetworkUsage()/Config.MAX_SIMULATION_TIME);		
+		System.out.println("Total network usage = "+NetworkUsageMonitor.getNetworkUsage()/Config.MAX_SIMULATION_TIME);
+	}
+	
+	private void printSensorDetails() {
+		int allData = 0;
+		for ( Sensor sensor : sensors) {
+			System.out.println(sensor.getName() + " emited " + sensor.getGeneratedDataPerEmits() + " byte data " + sensor.getNumberOfTupleEmits() + " times == " + sensor.getSumOfGeneratedData() + " bytes" );
+			System.out.println("Number of Tuple emits: " + sensor.getNumberOfTupleEmits());
+			allData += sensor.getSumOfGeneratedData();
+		}
+		System.out.print("All generated data: " + allData + " bytes");
+		
 	}
 
 	private FogDevice getCloud(){

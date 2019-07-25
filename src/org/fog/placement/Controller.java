@@ -117,8 +117,8 @@ public class Controller extends SimEntity{
 	private void printSensorDetails() {
 		int allData = 0;
 		for ( Sensor sensor : sensors) {
-			System.out.println(sensor.getName() + " emited " + sensor.getGeneratedDataPerEmits() + " byte data " + sensor.getNumberOfTupleEmits() + " times == " + sensor.getSumOfGeneratedData() + " bytes" );
-			System.out.println("Number of Tuple emits: " + sensor.getNumberOfTupleEmits());
+//			System.out.println(sensor.getName() + " emited " + sensor.getGeneratedDataPerEmits() + " byte data " + sensor.getNumberOfTupleEmits() + " times == " + sensor.getSumOfGeneratedData() + " bytes" );
+//			System.out.println("Number of Tuple emits: " + sensor.getNumberOfTupleEmits());
 			allData += sensor.getSumOfGeneratedData();
 		}
 		System.out.print("All generated data: " + allData + " bytes");

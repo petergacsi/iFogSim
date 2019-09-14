@@ -35,28 +35,36 @@ import org.fog.utils.FogUtils;
 import org.fog.utils.TimeKeeper;
 import org.fog.utils.distribution.DeterministicDistribution;
 
-public class FogToCloudExample2 {
+public class DISSECT_To_IFogSim {
 	
 	
 	static List<FogDevice> fogDevices = new ArrayList<FogDevice>();
 	static List<Sensor> sensors = new ArrayList<Sensor>();
 	static List<Actuator> actuators = new ArrayList<Actuator>();
 	
-	static double EEG_TRANSMISSION_TIME = 10;
-	static int FogDevicesNumber = 4;
-	static int StationNumber = 15;
+	//
+	static List<FogDevice> fogDevice_Type1 = new ArrayList<>();
+	static List<FogDevice> fogDevice_Type2 = new ArrayList<>();
+	static List<FogDevice> clouds = new ArrayList<>();
+	
+	
+	static double EEG_TRANSMISSION_TIME = 5.1;
+	static int NUMBER_OF_CLOUDS = 1;
+	static int NUMBER_OF_TYPE_1_FOGDEVICE = 30;
+	static int NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG = 4;
+	static int NUMBER_OF_STATIONS_PER_FOG = 1;
+	
 	
 	public static void main(String[] args) {
 		
 		Log.printLine("Start simulation...");
 		
 		try {
-		//create an application
 		
 			Log.disable();
-			int num_user = 1; // number of cloud users
+			int num_user = 1; 
 			Calendar calendar = Calendar.getInstance();
-			boolean trace_flag = false; // mean trace events
+			boolean trace_flag = false;
 	
 			CloudSim.init(num_user, calendar, trace_flag);
 			
@@ -69,7 +77,6 @@ public class FogToCloudExample2 {
 			
 			ModuleMapping moduleMapping = ModuleMapping.createModuleMapping();
 			moduleMapping.addModuleToDevice("cloud", "cloud");
-			
 			
 			Controller controller = new Controller("master-controller", fogDevices, sensors, actuators);
 			controller.submitApplication(application, 0, new ModulePlacementEdgewards(fogDevices, sensors, actuators, application, moduleMapping));
@@ -99,56 +106,42 @@ public class FogToCloudExample2 {
 	
 	
 	private static void createCloud(int userId, String appId) {
-		FogDevice cloud = createDefaultDevice("cloud", 44800, 40000, 100, 10000, 0, 0.01, 16*103, 16*83.25);
+		FogDevice cloud = createDefaultDevice("cloud", 45000, 40000, 100, 10000, 0, 0.01, 16*103, 16*83.25);
 		cloud.setParentId(-1);
 		fogDevices.add(cloud);
+		clouds.add(cloud);
 		
-		for (int i=0; i< FogDevicesNumber; i++) {
-			FogDevice fogDevice = createDefaultDevice("fogDevice-"+i, 280, 1000, 500, 500, 1, 0.0, 107.339, 83.4333); 
-			fogDevices.add(fogDevice);
-			fogDevice.setParentId(cloud.getId());
-			fogDevice.setUplinkLatency(100);
-		}
+		for (int i=0; i< NUMBER_OF_TYPE_1_FOGDEVICE; i++) {
+			FogDevice Type1_fogDevice = createDefaultDevice("fogDevice_Type1-"+i, 3000, 4000, 10000, 10000, 1, 0.0, 107.339, 83.4333); 
+			fogDevices.add(Type1_fogDevice);
+			fogDevice_Type1.add(Type1_fogDevice);
+			Type1_fogDevice.setParentId(cloud.getId());
+			Type1_fogDevice.setUplinkLatency(4);
 		
-		for (int i = 0; i< StationNumber; i++) {
-
-			createStation(""+i, userId, appId);
+			for (int y = 0; y < NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG ; y++) {
+				FogDevice Type2_fogDevice = createDefaultDevice("fogDevice_Type2-"+ i + "-"+ y, 1000, 1000, 10000, 270, 3, 0, 87.53, 82.44);
+				fogDevices.add(Type2_fogDevice);
+				fogDevice_Type2.add(Type2_fogDevice);
+				Type2_fogDevice.setParentId(Type1_fogDevice.getId());
+				Type2_fogDevice.setUplinkLatency(2);
+				
+				for (int x = 0; x < NUMBER_OF_STATIONS_PER_FOG; x++) {
+					createStation(""+(i + y * NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG)+"_"+x, userId, appId, Type2_fogDevice.getId());
+				}
+			}
 			
 		}
-		
-		
-		
+	
 	}
 	
-	private static FogDevice getRandomFogDevice() {
-		Random rng = new Random();
-		List<FogDevice> onlyFogs = new ArrayList<FogDevice>();
-		for (FogDevice fogdevice : fogDevices) {
-			if (fogdevice.getName().startsWith("f")) {
-				onlyFogs.add(fogdevice);
-			}
-		}
-		int random = rng.nextInt(onlyFogs.size());
-		FogDevice randomFogDevice = onlyFogs.get(random);
-		
-		return randomFogDevice;
-		
-	}
-	
-	
-	private static void createStation(String id, int userId, String appId) {
-		
+
+
+	private static void createStation(String id, int userId, String appId, int parentID) {
 		Sensor sensor = new Sensor("s-"+id, "STATION_DATA", userId, appId, new DeterministicDistribution(EEG_TRANSMISSION_TIME));
 		sensors.add(sensor);
-		Actuator display = new Actuator("actuator-"+id, userId, appId, "DISPLAY");
-		actuators.add(display);
-		FogDevice gateWayFog = getRandomFogDevice();
-		sensor.setGatewayDeviceId(gateWayFog.getId());
+		sensor.setGatewayDeviceId(parentID);
 		sensor.setLatency(6.0);
-		display.setGatewayDeviceId(gateWayFog.getId());
-		display.setLatency(1.0);
-		
-		
+	
 	
 	}
 	
@@ -160,10 +153,9 @@ public class FogToCloudExample2 {
 		peList.add(new Pe(0, new PeProvisionerOverbooking(mips)));
 		
 		int hostId = FogUtils.generateEntityId();
-		long storage = 1000000; // host storage
+		long storage = 1000000;
 		int bw = 10000;
 		
-		//létrehozzuk az erõforrás kezelõ osztályokat, melyek a metrikákban is segítenek
 		PowerHost host = new PowerHost(
 				hostId,
 				new RamProvisionerSimple(ram),
@@ -210,15 +202,11 @@ public class FogToCloudExample2 {
 	private static Application createApplication(String appId, int userId) {
 		Application application = Application.createApplication(appId, userId);
 		
-		//Modul ram fog max.: 4000, cloud max: 40000
-		//Try different values 
-		application.addAppModule("fog", 1);
-		application.addAppModule("cloud", 12);
+		application.addAppModule("fog", 10);
+		application.addAppModule("cloud", 10);
 		
-		
-		//MIPS 
-		application.addAppEdge("STATION_DATA", "fog", 200, 1000, "STATION_DATA", Tuple.UP, AppEdge.SENSOR);
-		application.addAppEdge("fog", "cloud", 200, 1000, "PROCESSED_DATA", Tuple.UP, AppEdge.MODULE);
+		application.addAppEdge("STATION_DATA", "fog", 2500, 500, "STATION_DATA", Tuple.UP, AppEdge.SENSOR);
+		application.addAppEdge("fog", "cloud", 2500, 500, "PROCESSED_DATA", Tuple.UP, AppEdge.MODULE);
 			
 		application.addTupleMapping("fog", "STATION_DATA", "PROCESSED_DATA", new FractionalSelectivity(1));
 		

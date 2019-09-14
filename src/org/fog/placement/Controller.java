@@ -104,10 +104,21 @@ public class Controller extends SimEntity{
 			printCostDetails();
 			printNetworkUsageDetails();
 			printSensorDetails();
+			printNumberOfDeviceTypes();
 			System.exit(0);
 			break;
 			
 		}
+	}
+	
+	
+	private void printNumberOfDeviceTypes() {
+		// TODO Auto-generated method stub
+		printInfos();
+	}
+
+	private void printInfos() {
+		System.out.println("Number of sensors: " + sensors.size());
 	}
 	
 	private void printNetworkUsageDetails() {
@@ -117,8 +128,8 @@ public class Controller extends SimEntity{
 	private void printSensorDetails() {
 		int allData = 0;
 		for ( Sensor sensor : sensors) {
-//			System.out.println(sensor.getName() + " emited " + sensor.getGeneratedDataPerEmits() + " byte data " + sensor.getNumberOfTupleEmits() + " times == " + sensor.getSumOfGeneratedData() + " bytes" );
-//			System.out.println("Number of Tuple emits: " + sensor.getNumberOfTupleEmits());
+			System.out.println(sensor.getName() + " emited " + sensor.getGeneratedDataPerEmits() + " byte data " + sensor.getNumberOfTupleEmits() + " times == " + sensor.getSumOfGeneratedData() + " bytes" );
+			System.out.println("Number of Tuple emits: " + sensor.getNumberOfTupleEmits());
 			allData += sensor.getSumOfGeneratedData();
 		}
 		System.out.print("All generated data: " + allData + " bytes");

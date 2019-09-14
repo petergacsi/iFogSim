@@ -9,7 +9,7 @@ public class Logger {
 	public static final int ERROR = 1;
 	public static final int DEBUG = 0;
 	
-	public static int LOG_LEVEL = Logger.DEBUG;
+	public static int LOG_LEVEL = Logger.ERROR;
 	private static DecimalFormat df = new DecimalFormat("#.00"); 
 
 	public static boolean ENABLED = false;;

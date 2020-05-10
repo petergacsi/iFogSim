@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -50,9 +49,9 @@ public class DISSECT_To_IFogSim {
 	
 	static double EEG_TRANSMISSION_TIME = 5.1;
 	static int NUMBER_OF_CLOUDS = 1;
-	static int NUMBER_OF_TYPE_1_FOGDEVICE = 30;
-	static int NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG = 4;
-	static int NUMBER_OF_STATIONS_PER_FOG = 1;
+	static int NUMBER_OF_TYPE_1_FOGDEVICE = 4;
+	static int NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG = 5;
+	static int NUMBER_OF_STATIONS_PER_FOG = 4;
 	
 	
 	public static void main(String[] args) {
@@ -98,7 +97,7 @@ public class DISSECT_To_IFogSim {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.printLine("something bad happened");
+			Log.printLine("Error during simulation");
 		}
 		
 	}
@@ -106,7 +105,7 @@ public class DISSECT_To_IFogSim {
 	
 	
 	private static void createCloud(int userId, String appId) {
-		FogDevice cloud = createDefaultDevice("cloud", 45000, 40000, 100, 10000, 0, 0.01, 16*103, 16*83.25);
+		FogDevice cloud = createDefaultDevice("cloud", 45000, 40000, 10000, 10000, 0, 0.01, 16*103, 16*83.25);
 		cloud.setParentId(-1);
 		fogDevices.add(cloud);
 		clouds.add(cloud);
@@ -119,19 +118,17 @@ public class DISSECT_To_IFogSim {
 			Type1_fogDevice.setUplinkLatency(4);
 		
 			for (int y = 0; y < NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG ; y++) {
-				FogDevice Type2_fogDevice = createDefaultDevice("fogDevice_Type2-"+ i + "-"+ y, 1000, 1000, 10000, 270, 3, 0, 87.53, 82.44);
+				FogDevice Type2_fogDevice = createDefaultDevice("fogDevice_Type2-"+ i + "-"+ y, 1000, 1000, 10000, 270, 2, 0, 87.53, 82.44);
 				fogDevices.add(Type2_fogDevice);
 				fogDevice_Type2.add(Type2_fogDevice);
 				Type2_fogDevice.setParentId(Type1_fogDevice.getId());
 				Type2_fogDevice.setUplinkLatency(2);
 				
 				for (int x = 0; x < NUMBER_OF_STATIONS_PER_FOG; x++) {
-					createStation(""+(i + y * NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG)+"_"+x, userId, appId, Type2_fogDevice.getId());
+					createStation(""+ i+ "-" + y + "-" +x, userId, appId, Type2_fogDevice.getId());
 				}
 			}
-			
 		}
-	
 	}
 	
 
@@ -200,24 +197,20 @@ public class DISSECT_To_IFogSim {
 	
 	@SuppressWarnings({"serial" })
 	private static Application createApplication(String appId, int userId) {
-		Application application = Application.createApplication(appId, userId);
 		
+		Application application = Application.createApplication(appId, userId);
 		application.addAppModule("fog", 10);
 		application.addAppModule("cloud", 10);
 		
 		application.addAppEdge("STATION_DATA", "fog", 2500, 500, "STATION_DATA", Tuple.UP, AppEdge.SENSOR);
 		application.addAppEdge("fog", "cloud", 2500, 500, "PROCESSED_DATA", Tuple.UP, AppEdge.MODULE);
-			
 		application.addTupleMapping("fog", "STATION_DATA", "PROCESSED_DATA", new FractionalSelectivity(1));
-		
 		
 		ArrayList<String>list1 = new ArrayList<String>(){{add("STATION_DATA");add("fog");add("cloud");}}; 
 		final AppLoop loop1 = new AppLoop(list1);
 		
-		
 		List<AppLoop> loops = new ArrayList<AppLoop>() {{add(loop1);}};
 		application.setLoops(loops);
-		
 		
 		return application;
 	}

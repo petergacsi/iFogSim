@@ -50,8 +50,8 @@ public class DISSECT_To_IFogSim {
 	static double EEG_TRANSMISSION_TIME = 5.1;
 	static int NUMBER_OF_CLOUDS = 1;
 	static int NUMBER_OF_TYPE_1_FOGDEVICE = 4;
-	static int NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG = 5;
-	static int NUMBER_OF_STATIONS_PER_FOG = 4;
+	static int NUMBER_OF_TYPE_2_FOGDEVICE_PER_TYPE_1_FOG = 3;
+	static int NUMBER_OF_STATIONS_PER_FOG = 3;
 	
 	
 	public static void main(String[] args) {

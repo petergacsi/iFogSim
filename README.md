@@ -25,6 +25,13 @@ git pull origin master
 * Include the JARs (except the CloudSim ones) to your Eclipse project.  
 * Run the example files (e.g. VRGame.java) to get started. 
 
+OR 
+
+* Download the zip and unzip it or use git clone command
+* Launch Eclipse and select Open Project from file systems
+* Choose the directory where you downloaded the project
+
+
 # References
 1. Harshit Gupta, Amir Vahid Dastjerdi , Soumya K. Ghosh, and Rajkumar Buyya, <A href="http://www.buyya.com/papers/iFogSim.pdf">iFogSim: A Toolkit for Modeling and Simulation of Resource Management Techniques in Internet of Things, Edge and Fog Computing Environments</A>, Software: Practice and Experience (SPE), Volume 47, Issue 9, Pages: 1275-1296, ISSN: 0038-0644, Wiley Press, New York, USA, September 2017.
 
